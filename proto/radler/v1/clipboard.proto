@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package radler.v1;
+
+option go_package = "github.com/rnovatorov/radler/gen/go/radler/v1;radler";
+
+service ClipboardService {
+  rpc Copy(stream CopyRequest) returns (CopyResponse);
+  rpc Paste(PasteRequest) returns (stream PasteResponse);
+}
+
+message CopyRequest {
+  bytes data = 1;
+}
+
+message CopyResponse {}
+
+message PasteRequest {}
+
+message PasteResponse {
+  bytes data = 1;
+}
