@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: radler/v1/clipboard.proto
+// source: api/v1/clipboard.proto
 
-package radlerv1
+package apiv1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -30,7 +30,7 @@ type CopyRequest struct {
 
 func (x *CopyRequest) Reset() {
 	*x = CopyRequest{}
-	mi := &file_radler_v1_clipboard_proto_msgTypes[0]
+	mi := &file_api_v1_clipboard_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *CopyRequest) String() string {
 func (*CopyRequest) ProtoMessage() {}
 
 func (x *CopyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_radler_v1_clipboard_proto_msgTypes[0]
+	mi := &file_api_v1_clipboard_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *CopyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CopyRequest.ProtoReflect.Descriptor instead.
 func (*CopyRequest) Descriptor() ([]byte, []int) {
-	return file_radler_v1_clipboard_proto_rawDescGZIP(), []int{0}
+	return file_api_v1_clipboard_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CopyRequest) GetData() []byte {
@@ -73,7 +73,7 @@ type CopyResponse struct {
 
 func (x *CopyResponse) Reset() {
 	*x = CopyResponse{}
-	mi := &file_radler_v1_clipboard_proto_msgTypes[1]
+	mi := &file_api_v1_clipboard_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -85,7 +85,7 @@ func (x *CopyResponse) String() string {
 func (*CopyResponse) ProtoMessage() {}
 
 func (x *CopyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_radler_v1_clipboard_proto_msgTypes[1]
+	mi := &file_api_v1_clipboard_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -98,7 +98,7 @@ func (x *CopyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CopyResponse.ProtoReflect.Descriptor instead.
 func (*CopyResponse) Descriptor() ([]byte, []int) {
-	return file_radler_v1_clipboard_proto_rawDescGZIP(), []int{1}
+	return file_api_v1_clipboard_proto_rawDescGZIP(), []int{1}
 }
 
 type PasteRequest struct {
@@ -109,7 +109,7 @@ type PasteRequest struct {
 
 func (x *PasteRequest) Reset() {
 	*x = PasteRequest{}
-	mi := &file_radler_v1_clipboard_proto_msgTypes[2]
+	mi := &file_api_v1_clipboard_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -121,7 +121,7 @@ func (x *PasteRequest) String() string {
 func (*PasteRequest) ProtoMessage() {}
 
 func (x *PasteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_radler_v1_clipboard_proto_msgTypes[2]
+	mi := &file_api_v1_clipboard_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -134,7 +134,7 @@ func (x *PasteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PasteRequest.ProtoReflect.Descriptor instead.
 func (*PasteRequest) Descriptor() ([]byte, []int) {
-	return file_radler_v1_clipboard_proto_rawDescGZIP(), []int{2}
+	return file_api_v1_clipboard_proto_rawDescGZIP(), []int{2}
 }
 
 type PasteResponse struct {
@@ -146,7 +146,7 @@ type PasteResponse struct {
 
 func (x *PasteResponse) Reset() {
 	*x = PasteResponse{}
-	mi := &file_radler_v1_clipboard_proto_msgTypes[3]
+	mi := &file_api_v1_clipboard_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -158,7 +158,7 @@ func (x *PasteResponse) String() string {
 func (*PasteResponse) ProtoMessage() {}
 
 func (x *PasteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_radler_v1_clipboard_proto_msgTypes[3]
+	mi := &file_api_v1_clipboard_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -171,7 +171,7 @@ func (x *PasteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PasteResponse.ProtoReflect.Descriptor instead.
 func (*PasteResponse) Descriptor() ([]byte, []int) {
-	return file_radler_v1_clipboard_proto_rawDescGZIP(), []int{3}
+	return file_api_v1_clipboard_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PasteResponse) GetData() []byte {
@@ -181,47 +181,47 @@ func (x *PasteResponse) GetData() []byte {
 	return nil
 }
 
-var File_radler_v1_clipboard_proto protoreflect.FileDescriptor
+var File_api_v1_clipboard_proto protoreflect.FileDescriptor
 
-const file_radler_v1_clipboard_proto_rawDesc = "" +
+const file_api_v1_clipboard_proto_rawDesc = "" +
 	"\n" +
-	"\x19radler/v1/clipboard.proto\x12\tradler.v1\"!\n" +
+	"\x16api/v1/clipboard.proto\x12\x06api.v1\"!\n" +
 	"\vCopyRequest\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data\"\x0e\n" +
 	"\fCopyResponse\"\x0e\n" +
 	"\fPasteRequest\"#\n" +
 	"\rPasteResponse\x12\x12\n" +
-	"\x04data\x18\x01 \x01(\fR\x04data2\x8b\x01\n" +
-	"\x10ClipboardService\x129\n" +
-	"\x04Copy\x12\x16.radler.v1.CopyRequest\x1a\x17.radler.v1.CopyResponse(\x01\x12<\n" +
-	"\x05Paste\x12\x17.radler.v1.PasteRequest\x1a\x18.radler.v1.PasteResponse0\x01B\x9c\x01\n" +
-	"\rcom.radler.v1B\x0eClipboardProtoP\x01Z6github.com/rnovatorov/radler/gen/go/radler/v1;radlerv1\xa2\x02\x03RXX\xaa\x02\tRadler.V1\xca\x02\tRadler\\V1\xe2\x02\x15Radler\\V1\\GPBMetadata\xea\x02\n" +
-	"Radler::V1b\x06proto3"
+	"\x04data\x18\x01 \x01(\fR\x04data2\x7f\n" +
+	"\x10ClipboardService\x123\n" +
+	"\x04Copy\x12\x13.api.v1.CopyRequest\x1a\x14.api.v1.CopyResponse(\x01\x126\n" +
+	"\x05Paste\x12\x14.api.v1.PasteRequest\x1a\x15.api.v1.PasteResponse0\x01B\x87\x01\n" +
+	"\n" +
+	"com.api.v1B\x0eClipboardProtoP\x01Z0github.com/rnovatorov/radler/gen/go/api/v1;apiv1\xa2\x02\x03AXX\xaa\x02\x06Api.V1\xca\x02\x06Api\\V1\xe2\x02\x12Api\\V1\\GPBMetadata\xea\x02\aApi::V1b\x06proto3"
 
 var (
-	file_radler_v1_clipboard_proto_rawDescOnce sync.Once
-	file_radler_v1_clipboard_proto_rawDescData []byte
+	file_api_v1_clipboard_proto_rawDescOnce sync.Once
+	file_api_v1_clipboard_proto_rawDescData []byte
 )
 
-func file_radler_v1_clipboard_proto_rawDescGZIP() []byte {
-	file_radler_v1_clipboard_proto_rawDescOnce.Do(func() {
-		file_radler_v1_clipboard_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_radler_v1_clipboard_proto_rawDesc), len(file_radler_v1_clipboard_proto_rawDesc)))
+func file_api_v1_clipboard_proto_rawDescGZIP() []byte {
+	file_api_v1_clipboard_proto_rawDescOnce.Do(func() {
+		file_api_v1_clipboard_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_v1_clipboard_proto_rawDesc), len(file_api_v1_clipboard_proto_rawDesc)))
 	})
-	return file_radler_v1_clipboard_proto_rawDescData
+	return file_api_v1_clipboard_proto_rawDescData
 }
 
-var file_radler_v1_clipboard_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_radler_v1_clipboard_proto_goTypes = []any{
-	(*CopyRequest)(nil),   // 0: radler.v1.CopyRequest
-	(*CopyResponse)(nil),  // 1: radler.v1.CopyResponse
-	(*PasteRequest)(nil),  // 2: radler.v1.PasteRequest
-	(*PasteResponse)(nil), // 3: radler.v1.PasteResponse
+var file_api_v1_clipboard_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_api_v1_clipboard_proto_goTypes = []any{
+	(*CopyRequest)(nil),   // 0: api.v1.CopyRequest
+	(*CopyResponse)(nil),  // 1: api.v1.CopyResponse
+	(*PasteRequest)(nil),  // 2: api.v1.PasteRequest
+	(*PasteResponse)(nil), // 3: api.v1.PasteResponse
 }
-var file_radler_v1_clipboard_proto_depIdxs = []int32{
-	0, // 0: radler.v1.ClipboardService.Copy:input_type -> radler.v1.CopyRequest
-	2, // 1: radler.v1.ClipboardService.Paste:input_type -> radler.v1.PasteRequest
-	1, // 2: radler.v1.ClipboardService.Copy:output_type -> radler.v1.CopyResponse
-	3, // 3: radler.v1.ClipboardService.Paste:output_type -> radler.v1.PasteResponse
+var file_api_v1_clipboard_proto_depIdxs = []int32{
+	0, // 0: api.v1.ClipboardService.Copy:input_type -> api.v1.CopyRequest
+	2, // 1: api.v1.ClipboardService.Paste:input_type -> api.v1.PasteRequest
+	1, // 2: api.v1.ClipboardService.Copy:output_type -> api.v1.CopyResponse
+	3, // 3: api.v1.ClipboardService.Paste:output_type -> api.v1.PasteResponse
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -229,26 +229,26 @@ var file_radler_v1_clipboard_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_radler_v1_clipboard_proto_init() }
-func file_radler_v1_clipboard_proto_init() {
-	if File_radler_v1_clipboard_proto != nil {
+func init() { file_api_v1_clipboard_proto_init() }
+func file_api_v1_clipboard_proto_init() {
+	if File_api_v1_clipboard_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_radler_v1_clipboard_proto_rawDesc), len(file_radler_v1_clipboard_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_v1_clipboard_proto_rawDesc), len(file_api_v1_clipboard_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_radler_v1_clipboard_proto_goTypes,
-		DependencyIndexes: file_radler_v1_clipboard_proto_depIdxs,
-		MessageInfos:      file_radler_v1_clipboard_proto_msgTypes,
+		GoTypes:           file_api_v1_clipboard_proto_goTypes,
+		DependencyIndexes: file_api_v1_clipboard_proto_depIdxs,
+		MessageInfos:      file_api_v1_clipboard_proto_msgTypes,
 	}.Build()
-	File_radler_v1_clipboard_proto = out.File
-	file_radler_v1_clipboard_proto_goTypes = nil
-	file_radler_v1_clipboard_proto_depIdxs = nil
+	File_api_v1_clipboard_proto = out.File
+	file_api_v1_clipboard_proto_goTypes = nil
+	file_api_v1_clipboard_proto_depIdxs = nil
 }

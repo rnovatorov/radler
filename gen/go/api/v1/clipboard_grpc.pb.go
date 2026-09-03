@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: radler/v1/clipboard.proto
+// source: api/v1/clipboard.proto
 
-package radlerv1
+package apiv1
 
 import (
 	context "context"
@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ClipboardService_Copy_FullMethodName  = "/radler.v1.ClipboardService/Copy"
-	ClipboardService_Paste_FullMethodName = "/radler.v1.ClipboardService/Paste"
+	ClipboardService_Copy_FullMethodName  = "/api.v1.ClipboardService/Copy"
+	ClipboardService_Paste_FullMethodName = "/api.v1.ClipboardService/Paste"
 )
 
 // ClipboardServiceClient is the client API for ClipboardService service.
@@ -136,7 +136,7 @@ type ClipboardService_PasteServer = grpc.ServerStreamingServer[PasteResponse]
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ClipboardService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "radler.v1.ClipboardService",
+	ServiceName: "api.v1.ClipboardService",
 	HandlerType: (*ClipboardServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -151,5 +151,5 @@ var ClipboardService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "radler/v1/clipboard.proto",
+	Metadata: "api/v1/clipboard.proto",
 }

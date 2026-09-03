@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package radler.v1;
+package api.v1;
 
 service ClipboardService {
   rpc Copy(stream CopyRequest) returns (CopyResponse);

@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/rnovatorov/radler/gen/go/radler/v1"
+	"github.com/rnovatorov/radler/gen/go/api/v1"
 	"github.com/rnovatorov/radler/internal/core"
 )
 
@@ -39,11 +39,11 @@ type closeErrReader struct {
 
 func (r closeErrReader) Close() error { return r.err }
 
-func startServer(t *testing.T, clip *fakeClipboard) radlerv1.ClipboardServiceClient {
+func startServer(t *testing.T, clip *fakeClipboard) apiv1.ClipboardServiceClient {
 	t.Helper()
 	lis := bufconn.Listen(1 << 20)
 	srv := grpc.NewServer()
-	radlerv1.RegisterClipboardServiceServer(srv, NewClipboardServiceServer(core.NewClipboardService(clip)))
+	apiv1.RegisterClipboardServiceServer(srv, NewClipboardServiceServer(core.NewClipboardService(clip)))
 	go srv.Serve(lis)
 	t.Cleanup(srv.Stop)
 	conn, err := grpc.NewClient("passthrough:///bufnet",
@@ -56,12 +56,12 @@ func startServer(t *testing.T, clip *fakeClipboard) radlerv1.ClipboardServiceCli
 		t.Fatalf("grpc client: %v", err)
 	}
 	t.Cleanup(func() { conn.Close() })
-	return radlerv1.NewClipboardServiceClient(conn)
+	return apiv1.NewClipboardServiceClient(conn)
 }
 
-func pasteAll(t *testing.T, client radlerv1.ClipboardServiceClient) ([]byte, error) {
+func pasteAll(t *testing.T, client apiv1.ClipboardServiceClient) ([]byte, error) {
 	t.Helper()
-	stream, err := client.Paste(context.Background(), &radlerv1.PasteRequest{})
+	stream, err := client.Paste(context.Background(), &apiv1.PasteRequest{})
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func TestCopyNotImplemented(t *testing.T) {
 	if err != nil {
 		t.Fatalf("copy: %v", err)
 	}
-	if err := stream.Send(&radlerv1.CopyRequest{Data: []byte("data")}); err != nil {
+	if err := stream.Send(&apiv1.CopyRequest{Data: []byte("data")}); err != nil {
 		t.Fatalf("send: %v", err)
 	}
 	_, err = stream.CloseAndRecv()
