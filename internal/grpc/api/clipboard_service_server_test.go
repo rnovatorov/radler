@@ -39,11 +39,11 @@ type closeErrReader struct {
 
 func (r closeErrReader) Close() error { return r.err }
 
-func startServer(t *testing.T, clip *fakeClipboard) radler.ClipboardServiceClient {
+func startServer(t *testing.T, clip *fakeClipboard) radlerv1.ClipboardServiceClient {
 	t.Helper()
 	lis := bufconn.Listen(1 << 20)
 	srv := grpc.NewServer()
-	radler.RegisterClipboardServiceServer(srv, NewClipboardServiceServer(core.NewClipboardService(clip)))
+	radlerv1.RegisterClipboardServiceServer(srv, NewClipboardServiceServer(core.NewClipboardService(clip)))
 	go srv.Serve(lis)
 	t.Cleanup(srv.Stop)
 	conn, err := grpc.NewClient("passthrough:///bufnet",
@@ -56,12 +56,12 @@ func startServer(t *testing.T, clip *fakeClipboard) radler.ClipboardServiceClien
 		t.Fatalf("grpc client: %v", err)
 	}
 	t.Cleanup(func() { conn.Close() })
-	return radler.NewClipboardServiceClient(conn)
+	return radlerv1.NewClipboardServiceClient(conn)
 }
 
-func pasteAll(t *testing.T, client radler.ClipboardServiceClient) ([]byte, error) {
+func pasteAll(t *testing.T, client radlerv1.ClipboardServiceClient) ([]byte, error) {
 	t.Helper()
-	stream, err := client.Paste(context.Background(), &radler.PasteRequest{})
+	stream, err := client.Paste(context.Background(), &radlerv1.PasteRequest{})
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func TestCopyNotImplemented(t *testing.T) {
 	if err != nil {
 		t.Fatalf("copy: %v", err)
 	}
-	if err := stream.Send(&radler.CopyRequest{Data: []byte("data")}); err != nil {
+	if err := stream.Send(&radlerv1.CopyRequest{Data: []byte("data")}); err != nil {
 		t.Fatalf("send: %v", err)
 	}
 	_, err = stream.CloseAndRecv()

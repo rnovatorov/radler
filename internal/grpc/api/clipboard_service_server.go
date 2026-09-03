@@ -8,7 +8,7 @@ import (
 )
 
 type ClipboardServiceServer struct {
-	radler.UnimplementedClipboardServiceServer
+	radlerv1.UnimplementedClipboardServiceServer
 	service *core.ClipboardService
 }
 
@@ -17,19 +17,19 @@ func NewClipboardServiceServer(service *core.ClipboardService) *ClipboardService
 }
 
 func (s *ClipboardServiceServer) Register(r grpc.ServiceRegistrar) {
-	radler.RegisterClipboardServiceServer(r, s)
+	radlerv1.RegisterClipboardServiceServer(r, s)
 }
 
-func (s *ClipboardServiceServer) Paste(_ *radler.PasteRequest, stream radler.ClipboardService_PasteServer) error {
+func (s *ClipboardServiceServer) Paste(_ *radlerv1.PasteRequest, stream radlerv1.ClipboardService_PasteServer) error {
 	return s.service.Paste(stream.Context(), pasteStream{stream: stream})
 }
 
 type pasteStream struct {
-	stream radler.ClipboardService_PasteServer
+	stream radlerv1.ClipboardService_PasteServer
 }
 
 func (p pasteStream) Write(b []byte) (int, error) {
-	if err := p.stream.Send(&radler.PasteResponse{Data: b}); err != nil {
+	if err := p.stream.Send(&radlerv1.PasteResponse{Data: b}); err != nil {
 		return 0, err
 	}
 	return len(b), nil

@@ -1,5 +1,10 @@
 version: v2
 clean: true
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: github.com/rnovatorov/radler/gen/go
 plugins:
   - local: protoc-gen-go
     out: gen/go

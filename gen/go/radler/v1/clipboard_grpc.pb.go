@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: radler/v1/clipboard.proto
 
-package radler
+package radlerv1
 
 import (
 	context "context"
