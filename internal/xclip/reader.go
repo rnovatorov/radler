@@ -1,7 +1,6 @@
 package xclip
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -15,12 +14,8 @@ type reader struct {
 	stdoutR *os.File
 	stderrR *os.File
 
-	mu       sync.Mutex
-	waitErr  error
-	exited   chan struct{}
-	drained  chan struct{}
-	stderr   bytes.Buffer
-	killOnce sync.Once
+	closeOnce sync.Once
+	result    error
 }
 
 func newReader(ctx context.Context, binary string, env []string) (*reader, error) {
@@ -34,16 +29,14 @@ func newReader(ctx context.Context, binary string, env []string) (*reader, error
 		stdoutW.Close()
 		return nil, fmt.Errorf("stderr pipe: %w", err)
 	}
-	cmd := exec.Command(binary, "-o", "-selection", "clipboard")
+	cmd := exec.CommandContext(ctx, binary, "-o", "-selection", "clipboard")
 	cmd.Env = env
 	cmd.Stdout = stdoutW
 	cmd.Stderr = stderrW
-	p := &reader{
+	r := &reader{
 		cmd:     cmd,
 		stdoutR: stdoutR,
 		stderrR: stderrR,
-		exited:  make(chan struct{}),
-		drained: make(chan struct{}),
 	}
 	if err := cmd.Start(); err != nil {
 		stdoutR.Close()
@@ -54,59 +47,31 @@ func newReader(ctx context.Context, binary string, env []string) (*reader, error
 	}
 	stdoutW.Close()
 	stderrW.Close()
-	go p.reap()
-	go p.drain()
-	go p.watch(ctx)
-	return p, nil
+	return r, nil
 }
 
-func (p *reader) reap() {
-	werr := p.cmd.Wait()
-	p.mu.Lock()
-	p.waitErr = werr
-	p.mu.Unlock()
-	close(p.exited)
+func (r *reader) Read(b []byte) (int, error) {
+	return r.stdoutR.Read(b)
 }
 
-// stderrR's only closer is drain at EOF; stdoutR's only closer is Close.
-func (p *reader) drain() {
-	defer close(p.drained)
-	defer p.stderrR.Close()
-	_, _ = io.Copy(&p.stderr, p.stderrR)
-}
-
-// Close and the ctx watcher are the concurrent kill callers; Once settles them.
-func (p *reader) kill() {
-	p.killOnce.Do(func() {
-		p.cmd.Process.Kill()
+func (r *reader) Close() error {
+	r.closeOnce.Do(func() {
+		r.result = r.close()
 	})
+	return r.result
 }
 
-func (p *reader) watch(ctx context.Context) {
-	select {
-	case <-ctx.Done():
-		p.kill()
-	case <-p.exited:
-	}
-}
-
-func (p *reader) Read(b []byte) (int, error) {
-	return p.stdoutR.Read(b)
-}
-
-// Awaiting drained makes the returned error's stderr text complete.
-func (p *reader) Close() error {
-	p.kill()
-	p.stdoutR.Close()
-	<-p.exited
-	<-p.drained
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	if p.waitErr == nil {
+func (r *reader) close() error {
+	r.cmd.Cancel()
+	defer r.stdoutR.Close()
+	defer r.stderrR.Close()
+	werr := r.cmd.Wait()
+	if werr == nil {
 		return nil
 	}
-	if s := p.stderr.String(); s != "" {
-		return fmt.Errorf("%w: %s", p.waitErr, s)
+	data, _ := io.ReadAll(r.stderrR)
+	if len(data) == 0 {
+		return werr
 	}
-	return p.waitErr
+	return fmt.Errorf("%w: %s", werr, data)
 }
