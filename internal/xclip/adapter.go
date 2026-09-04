@@ -30,7 +30,7 @@ func New(binary string) (*Adapter, error) {
 }
 
 func (a *Adapter) NewReader(ctx context.Context) (io.ReadCloser, error) {
-	return newProcess(ctx, []string{a.binary, "-o", "-selection", "clipboard"}, a.env)
+	return newReader(ctx, a.binary, a.env)
 }
 
 func (a *Adapter) NewWriter(ctx context.Context) (io.WriteCloser, error) {

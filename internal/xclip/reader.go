@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-type Process struct {
+type reader struct {
 	cmd     *exec.Cmd
 	stdoutR *os.File
 	stderrR *os.File
@@ -23,7 +23,8 @@ type Process struct {
 	killOnce sync.Once
 }
 
-func newProcess(ctx context.Context, argv []string, env []string) (*Process, error) {
+func newReader(ctx context.Context, binary string, env []string) (*reader, error) {
+	argv := []string{binary, "-o", "-selection", "clipboard"}
 	cmd := exec.Command(argv[0], argv[1:]...)
 	cmd.Env = env
 	stdoutR, stdoutW, err := os.Pipe()
@@ -38,7 +39,7 @@ func newProcess(ctx context.Context, argv []string, env []string) (*Process, err
 	}
 	cmd.Stdout = stdoutW
 	cmd.Stderr = stderrW
-	p := &Process{
+	p := &reader{
 		cmd:     cmd,
 		stdoutR: stdoutR,
 		stderrR: stderrR,
@@ -60,7 +61,7 @@ func newProcess(ctx context.Context, argv []string, env []string) (*Process, err
 	return p, nil
 }
 
-func (p *Process) reap() {
+func (p *reader) reap() {
 	werr := p.cmd.Wait()
 	p.mu.Lock()
 	p.waitErr = werr
@@ -69,20 +70,20 @@ func (p *Process) reap() {
 }
 
 // stderrR's only closer is drain at EOF; stdoutR's only closer is Close.
-func (p *Process) drain() {
+func (p *reader) drain() {
 	defer close(p.drained)
 	defer p.stderrR.Close()
 	_, _ = io.Copy(&p.stderr, p.stderrR)
 }
 
 // Close and the ctx watcher are the concurrent kill callers; Once settles them.
-func (p *Process) kill() {
+func (p *reader) kill() {
 	p.killOnce.Do(func() {
 		p.cmd.Process.Kill()
 	})
 }
 
-func (p *Process) watch(ctx context.Context) {
+func (p *reader) watch(ctx context.Context) {
 	select {
 	case <-ctx.Done():
 		p.kill()
@@ -90,12 +91,12 @@ func (p *Process) watch(ctx context.Context) {
 	}
 }
 
-func (p *Process) Read(b []byte) (int, error) {
+func (p *reader) Read(b []byte) (int, error) {
 	return p.stdoutR.Read(b)
 }
 
 // Awaiting drained makes the returned error's stderr text complete.
-func (p *Process) Close() error {
+func (p *reader) Close() error {
 	p.kill()
 	p.stdoutR.Close()
 	<-p.exited
