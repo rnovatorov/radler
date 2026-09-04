@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"errors"
 	"io"
 )
 
@@ -15,7 +14,15 @@ func NewClipboardService(clipboard Clipboard) *ClipboardService {
 }
 
 func (s *ClipboardService) Copy(ctx context.Context, r io.Reader) error {
-	return errors.New("not implemented")
+	w, err := s.clipboard.NewWriter(ctx)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(w, r); err != nil {
+		w.Close()
+		return err
+	}
+	return w.Close()
 }
 
 func (s *ClipboardService) Paste(ctx context.Context, w io.Writer) error {
