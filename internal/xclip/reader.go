@@ -24,9 +24,6 @@ type reader struct {
 }
 
 func newReader(ctx context.Context, binary string, env []string) (*reader, error) {
-	argv := []string{binary, "-o", "-selection", "clipboard"}
-	cmd := exec.Command(argv[0], argv[1:]...)
-	cmd.Env = env
 	stdoutR, stdoutW, err := os.Pipe()
 	if err != nil {
 		return nil, fmt.Errorf("stdout pipe: %w", err)
@@ -37,6 +34,8 @@ func newReader(ctx context.Context, binary string, env []string) (*reader, error
 		stdoutW.Close()
 		return nil, fmt.Errorf("stderr pipe: %w", err)
 	}
+	cmd := exec.Command(binary, "-o", "-selection", "clipboard")
+	cmd.Env = env
 	cmd.Stdout = stdoutW
 	cmd.Stderr = stderrW
 	p := &reader{
@@ -51,7 +50,7 @@ func newReader(ctx context.Context, binary string, env []string) (*reader, error
 		stdoutW.Close()
 		stderrR.Close()
 		stderrW.Close()
-		return nil, fmt.Errorf("starting %s: %w", argv[0], err)
+		return nil, fmt.Errorf("starting %s: %w", binary, err)
 	}
 	stdoutW.Close()
 	stderrW.Close()
