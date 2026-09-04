@@ -29,7 +29,22 @@ func (f *fakeClipboard) NewReader(ctx context.Context) (io.ReadCloser, error) {
 }
 
 func (f *fakeClipboard) NewWriter(ctx context.Context) (io.WriteCloser, error) {
-	return nil, errors.New("not implemented")
+	return &fakeWriter{clipboard: f}, nil
+}
+
+type fakeWriter struct {
+	clipboard *fakeClipboard
+	data      []byte
+}
+
+func (w *fakeWriter) Write(p []byte) (int, error) {
+	w.data = append(w.data, p...)
+	return len(p), nil
+}
+
+func (w *fakeWriter) Close() error {
+	w.clipboard.data = w.data
+	return nil
 }
 
 type closeErrReader struct {
@@ -101,21 +116,40 @@ func TestPasteCloseErrorSurfaces(t *testing.T) {
 	}
 }
 
-func TestCopyNotImplemented(t *testing.T) {
-	client := startServer(t, &fakeClipboard{})
+func TestCopyRoundTrip(t *testing.T) {
+	clip := &fakeClipboard{}
+	client := startServer(t, clip)
 	stream, err := client.Copy(context.Background())
 	if err != nil {
 		t.Fatalf("copy: %v", err)
 	}
-	if err := stream.Send(&apiv1.CopyRequest{Data: []byte("data")}); err != nil {
-		t.Fatalf("send: %v", err)
+	chunks := [][]byte{
+		bytes.Repeat([]byte("a"), 1),
+		bytes.Repeat([]byte("b"), 32<<10),
+		bytes.Repeat([]byte("c"), 100<<10),
+		[]byte("tail"),
 	}
-	_, err = stream.CloseAndRecv()
-	if err == nil {
-		t.Fatal("copy: expected unimplemented error")
+	for _, chunk := range chunks {
+		if err := stream.Send(&apiv1.CopyRequest{Data: chunk}); err != nil {
+			t.Fatalf("send: %v", err)
+		}
 	}
-	if status.Code(err) != codes.Unimplemented {
-		t.Fatalf("copy error code = %v, want Unimplemented", status.Code(err))
+	if _, err := stream.CloseAndRecv(); err != nil {
+		t.Fatalf("close and recv: %v", err)
+	}
+	var want []byte
+	for _, chunk := range chunks {
+		want = append(want, chunk...)
+	}
+	if !bytes.Equal(clip.data, want) {
+		t.Fatalf("committed data: got %d bytes, want %d", len(clip.data), len(want))
+	}
+	got, err := pasteAll(t, client)
+	if err != nil {
+		t.Fatalf("paste: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("paste: got %d bytes, want %d", len(got), len(want))
 	}
 }
 
