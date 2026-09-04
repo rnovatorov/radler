@@ -2,7 +2,6 @@ package xclip
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -34,5 +33,5 @@ func (a *Adapter) NewReader(ctx context.Context) (io.ReadCloser, error) {
 }
 
 func (a *Adapter) NewWriter(ctx context.Context) (io.WriteCloser, error) {
-	return nil, errors.New("not implemented")
+	return newWriter(ctx, a.binary, a.env)
 }
