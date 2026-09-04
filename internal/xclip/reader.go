@@ -15,7 +15,7 @@ type reader struct {
 	stderrR *os.File
 
 	closeOnce sync.Once
-	result    error
+	err       error
 }
 
 func newReader(ctx context.Context, binary string, env []string) (*reader, error) {
@@ -56,22 +56,22 @@ func (r *reader) Read(b []byte) (int, error) {
 
 func (r *reader) Close() error {
 	r.closeOnce.Do(func() {
-		r.result = r.close()
+		r.err = r.close()
 	})
-	return r.result
+	return r.err
 }
 
 func (r *reader) close() error {
 	r.cmd.Cancel()
 	defer r.stdoutR.Close()
 	defer r.stderrR.Close()
-	werr := r.cmd.Wait()
-	if werr == nil {
+	err := r.cmd.Wait()
+	if err == nil {
 		return nil
 	}
 	data, _ := io.ReadAll(r.stderrR)
 	if len(data) == 0 {
-		return werr
+		return err
 	}
-	return fmt.Errorf("%w: %s", werr, data)
+	return fmt.Errorf("%w: %s", err, data)
 }
