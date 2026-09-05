@@ -54,7 +54,7 @@ type closeErrReader struct {
 
 func (r closeErrReader) Close() error { return r.err }
 
-func startServer(t *testing.T, clip *fakeClipboard) apiv1.ClipboardServiceClient {
+func startConn(t *testing.T, clip *fakeClipboard) *grpc.ClientConn {
 	t.Helper()
 	lis := bufconn.Listen(1 << 20)
 	srv := grpc.NewServer()
@@ -71,7 +71,12 @@ func startServer(t *testing.T, clip *fakeClipboard) apiv1.ClipboardServiceClient
 		t.Fatalf("grpc client: %v", err)
 	}
 	t.Cleanup(func() { conn.Close() })
-	return apiv1.NewClipboardServiceClient(conn)
+	return conn
+}
+
+func startServer(t *testing.T, clip *fakeClipboard) apiv1.ClipboardServiceClient {
+	t.Helper()
+	return apiv1.NewClipboardServiceClient(startConn(t, clip))
 }
 
 func pasteAll(t *testing.T, client apiv1.ClipboardServiceClient) ([]byte, error) {
