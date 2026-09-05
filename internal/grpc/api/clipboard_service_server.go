@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"io"
 
 	"google.golang.org/grpc"
@@ -59,7 +60,7 @@ type pasteStream struct {
 }
 
 func (p pasteStream) Write(b []byte) (int, error) {
-	if err := p.stream.Send(&apiv1.PasteResponse{Data: b}); err != nil {
+	if err := p.stream.Send(&apiv1.PasteResponse{Data: bytes.Clone(b)}); err != nil {
 		return 0, err
 	}
 	return len(b), nil
