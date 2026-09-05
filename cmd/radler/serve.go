@@ -5,9 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"net/url"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/rnovatorov/radler/internal/core"
 	"github.com/rnovatorov/radler/internal/grpc"
@@ -15,30 +12,19 @@ import (
 	"github.com/rnovatorov/radler/internal/xclip"
 )
 
-func main() {
-	if err := run(context.Background()); err != nil {
-		fmt.Fprintf(os.Stderr, "%s: error: %s\n", os.Args[0], err)
-		os.Exit(-1)
+func runServe(ctx context.Context, args []string) error {
+	fs := flag.NewFlagSet("serve", flag.ContinueOnError)
+	listen := fs.String("listen", "", "listen address (tcp://host:port or unix:///path)")
+	clipboard := fs.String("clipboard", "xclip://xclip", "clipboard address (xclip://<binary> or xclip:///<abs-path>)")
+	if err := fs.Parse(args); err != nil {
+		return err
 	}
-}
-
-func run(ctx context.Context) error {
-	listen, clipboard := parseArgs()
-	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	clip, err := newClipboard(clipboard)
+	clip, err := newClipboard(*clipboard)
 	if err != nil {
 		return fmt.Errorf("clipboard: %w", err)
 	}
 	clipboardAPI := api.NewClipboardServiceServer(core.NewClipboardService(clip))
-	return grpc.Serve(ctx, listen, clipboardAPI)
-}
-
-func parseArgs() (listen string, clipboard string) {
-	listenFlag := flag.String("listen", "", "listen address (tcp://host:port or unix:///path)")
-	clipboardFlag := flag.String("clipboard", "xclip://xclip", "clipboard address (xclip://<binary> or xclip:///<abs-path>)")
-	flag.Parse()
-	return *listenFlag, *clipboardFlag
+	return grpc.Serve(ctx, *listen, clipboardAPI)
 }
 
 func newClipboard(addr string) (core.Clipboard, error) {
