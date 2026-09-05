@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 
-	"github.com/rnovatorov/radler/internal/grpc"
-	"github.com/rnovatorov/radler/internal/grpc/api"
+	"github.com/rnovatorov/radler/internal/client"
 )
 
 func runPaste(ctx context.Context, args []string) error {
@@ -16,13 +14,10 @@ func runPaste(ctx context.Context, args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	conn, err := grpc.Dial(*listen)
+	c, err := client.New(*listen)
 	if err != nil {
-		return fmt.Errorf("connect: %w", err)
+		return err
 	}
-	defer conn.Close()
-	if err := api.NewClipboardServiceClient(conn).Paste(ctx, os.Stdout); err != nil {
-		return fmt.Errorf("paste: %w", err)
-	}
-	return nil
+	defer c.Close()
+	return c.Paste(ctx, os.Stdout)
 }

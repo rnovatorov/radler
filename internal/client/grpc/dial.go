@@ -8,18 +8,26 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func Dial(addr string) (*grpc.ClientConn, error) {
+type Conn struct {
+	*grpc.ClientConn
+}
+
+func Dial(addr string) (*Conn, error) {
 	target, err := dialTarget(addr)
 	if err != nil {
 		return nil, err
 	}
-	return grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	return &Conn{ClientConn: conn}, nil
 }
 
 func dialTarget(addr string) (string, error) {
 	u, err := url.Parse(addr)
 	if err != nil {
-		return "", fmt.Errorf("grpc dial: invalid address %q: %v", addr, err)
+		return "", fmt.Errorf("grpc dial: invalid address %q: %w", addr, err)
 	}
 	switch u.Scheme {
 	case "tcp":
