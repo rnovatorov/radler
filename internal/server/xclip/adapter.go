@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/rnovatorov/radler/internal/core"
+	"github.com/rnovatorov/radler/internal/server/core"
 )
 
 var _ core.Clipboard = (*Adapter)(nil)

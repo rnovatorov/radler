@@ -1,4 +1,4 @@
-package api
+package grpc
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/rnovatorov/radler/gen/go/api/v1"
-	"github.com/rnovatorov/radler/internal/core"
+	"github.com/rnovatorov/radler/internal/server/core"
 )
 
 type fakeClipboard struct {

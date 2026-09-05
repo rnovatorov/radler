@@ -3,13 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"net/url"
 
-	"github.com/rnovatorov/radler/internal/core"
-	"github.com/rnovatorov/radler/internal/grpc"
-	"github.com/rnovatorov/radler/internal/grpc/api"
-	"github.com/rnovatorov/radler/internal/xclip"
+	"github.com/rnovatorov/radler/internal/server"
 )
 
 func runServe(ctx context.Context, args []string) error {
@@ -19,25 +14,9 @@ func runServe(ctx context.Context, args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
-	clip, err := newClipboard(*clipboard)
+	srv, err := server.New(server.Options{Listen: *listen, Clipboard: *clipboard})
 	if err != nil {
-		return fmt.Errorf("clipboard: %w", err)
+		return err
 	}
-	clipboardAPI := api.NewClipboardServiceServer(core.NewClipboardService(clip))
-	return grpc.Serve(ctx, *listen, clipboardAPI)
-}
-
-func newClipboard(addr string) (core.Clipboard, error) {
-	u, err := url.Parse(addr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid clipboard address %q: %v", addr, err)
-	}
-	name := u.Path
-	if name == "" {
-		name = u.Host
-	}
-	if u.Scheme != "xclip" || name == "" {
-		return nil, fmt.Errorf("%q: not implemented", addr)
-	}
-	return xclip.New(name)
+	return srv.Serve(ctx)
 }
