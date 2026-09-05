@@ -22,12 +22,12 @@ func TestBareBinaryNameResolves(t *testing.T) {
 	if readErr != nil {
 		t.Fatalf("read: %v", readErr)
 	}
-	if closeErr == nil || !strings.Contains(closeErr.Error(), "STRING not available") {
-		t.Fatalf("close error = %v, want proof the bare-named binary ran", closeErr)
+	if closeErr != nil {
+		t.Fatalf("close: %v", closeErr)
 	}
 }
 
-func TestPasteEmptySelectionFails(t *testing.T) {
+func TestPasteEmptySelectionSucceeds(t *testing.T) {
 	a, err := New("xclip")
 	if err != nil {
 		t.Fatalf("new: %v", err)
@@ -45,11 +45,33 @@ func TestPasteEmptySelectionFails(t *testing.T) {
 	if readErr != nil {
 		t.Fatalf("read: %v", readErr)
 	}
-	if closeErr == nil {
-		t.Fatal("paste on empty selection: Close must report the failure")
+	if closeErr != nil {
+		t.Fatalf("paste on empty selection: Close error = %v, want nil", closeErr)
 	}
-	if !strings.Contains(closeErr.Error(), "STRING not available") {
-		t.Fatalf("close error = %v, want xclip unavailable-selection stderr", closeErr)
+}
+
+func TestReaderCloseIncludesXclipStderr(t *testing.T) {
+	a, err := New("xclip")
+	if err != nil {
+		t.Fatalf("new: %v", err)
+	}
+	env := make([]string, 0, len(a.env))
+	for _, e := range a.env {
+		if !strings.HasPrefix(e, "DISPLAY=") {
+			env = append(env, e)
+		}
+	}
+	r, err := newReader(context.Background(), a.binary, env)
+	if err != nil {
+		t.Fatalf("new reader: %v", err)
+	}
+	_, _ = io.ReadAll(r)
+	closeErr := r.Close()
+	if closeErr == nil {
+		t.Fatal("close without display: expected error")
+	}
+	if !strings.Contains(closeErr.Error(), "Can't open display") {
+		t.Fatalf("close error = %v, want xclip stderr included", closeErr)
 	}
 }
 
