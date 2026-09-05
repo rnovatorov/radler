@@ -11,7 +11,9 @@ import (
 	"testing"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/rnovatorov/radler/gen/go/api/v1"
@@ -20,8 +22,9 @@ import (
 type fakeServer struct {
 	apiv1.UnimplementedClipboardServiceServer
 
-	mu   sync.Mutex
-	data []byte
+	mu      sync.Mutex
+	data    []byte
+	copyErr error
 }
 
 func (s *fakeServer) Copy(stream apiv1.ClipboardService_CopyServer) error {
@@ -35,7 +38,11 @@ func (s *fakeServer) Copy(stream apiv1.ClipboardService_CopyServer) error {
 		}
 		s.mu.Lock()
 		s.data = append(s.data, req.GetData()...)
+		err = s.copyErr
 		s.mu.Unlock()
+		if err != nil {
+			return err
+		}
 	}
 }
 
@@ -144,5 +151,21 @@ func TestPasteWriterError(t *testing.T) {
 	want := errors.New("stdout exploded")
 	if err := client.Paste(context.Background(), errWriter{want}); !errors.Is(err, want) {
 		t.Fatalf("paste error = %v, want %v", err, want)
+	}
+}
+
+func TestCopySurfacesServerError(t *testing.T) {
+	srv := &fakeServer{copyErr: status.Error(codes.Internal, "clipboard exploded")}
+	client := NewClipboardServiceClient(startConn(t, srv))
+	payload := bytes.Repeat([]byte("x"), 2<<20)
+	err := client.Copy(context.Background(), bytes.NewReader(payload))
+	if err == nil {
+		t.Fatal("copy: expected error")
+	}
+	if status.Code(err) != codes.Internal {
+		t.Fatalf("copy error = %v, want code %v", err, codes.Internal)
+	}
+	if !strings.Contains(err.Error(), "clipboard exploded") {
+		t.Fatalf("copy error = %v, want containing %q", err, "clipboard exploded")
 	}
 }

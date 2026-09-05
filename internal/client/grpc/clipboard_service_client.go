@@ -30,6 +30,9 @@ func (c *ClipboardServiceClient) Copy(ctx context.Context, r io.Reader) error {
 		n, err := r.Read(buf)
 		if n > 0 {
 			if err := stream.Send(&apiv1.CopyRequest{Data: bytes.Clone(buf[:n])}); err != nil {
+				if err == io.EOF {
+					_, err = stream.CloseAndRecv()
+				}
 				return err
 			}
 		}
