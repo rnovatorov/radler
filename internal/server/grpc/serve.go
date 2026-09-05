@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -18,21 +19,32 @@ func Serve(ctx context.Context, addr string, services ...Service) error {
 	if err != nil {
 		return err
 	}
+	return serve(ctx, lis, services...)
+}
+
+func serve(ctx context.Context, lis net.Listener, services ...Service) error {
 	srv := grpc.NewServer()
 	for _, service := range services {
 		service.Register(srv)
 	}
+	errc := make(chan error, 1)
+	ctx, cancel := context.WithCancel(ctx)
 	go func() {
-		<-ctx.Done()
-		srv.GracefulStop()
+		defer cancel()
+		errc <- srv.Serve(lis)
 	}()
-	return srv.Serve(lis)
+	<-ctx.Done()
+	srv.GracefulStop()
+	if err := <-errc; err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		return err
+	}
+	return nil
 }
 
 func listen(addr string) (net.Listener, error) {
 	u, err := url.Parse(addr)
 	if err != nil {
-		return nil, fmt.Errorf("grpc listen: invalid address %q: %v", addr, err)
+		return nil, fmt.Errorf("grpc listen: invalid address %q: %w", addr, err)
 	}
 	var network, address string
 	switch u.Scheme {
