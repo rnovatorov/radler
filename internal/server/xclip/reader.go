@@ -2,12 +2,18 @@ package xclip
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 )
+
+// errTargetStringNotAvailable is xclip's stderr wording when the selection
+// (clipboard) is empty. It may need updating if xclip changes its message.
+const errTargetStringNotAvailable = "target STRING not available"
 
 type reader struct {
 	cmd     *exec.Cmd
@@ -70,6 +76,10 @@ func (r *reader) close() error {
 		return nil
 	}
 	data, _ := io.ReadAll(r.stderrR)
+	var ee *exec.ExitError
+	if errors.As(err, &ee) && ee.Exited() && strings.Contains(string(data), errTargetStringNotAvailable) {
+		return nil
+	}
 	if len(data) == 0 {
 		return err
 	}
